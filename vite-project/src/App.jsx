@@ -1,11 +1,28 @@
-
+import './styles.css'; 
 function App() {
   
 
   return (
+    
     <>
-    <h1> Hello world!</h1>
-    </>
+    <Header /> 
+ 
+  <main className="main">
+    <section className="card users-container">
+     <userSearch /> 
+
+      <userListComponent />
+   
+      <pagination />
+     
+    </section>
+  </main>
+  
+  <Footer />
+  
+</>
+
+    
     
   )
 }
