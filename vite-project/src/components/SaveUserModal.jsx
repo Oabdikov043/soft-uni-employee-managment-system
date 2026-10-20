@@ -51,7 +51,7 @@ export default function SaveUserModal({
 
         // TODO: Check if edit then edit handcler or onSubmit when edit is false
         // Call the onSubmit prop with the constructed employee object
-        onSubmit(employee);
+        onSubmit(employee, userId);
     }
 
     return (
@@ -70,7 +70,7 @@ export default function SaveUserModal({
                             </svg>
                         </button>
                     </header>
-                    <form onSubmit={submitHandler}>
+                    <form key={user?.id || 'new'} onSubmit={submitHandler}>
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="firstName">First name</label>

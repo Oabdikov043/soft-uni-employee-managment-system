@@ -1,20 +1,31 @@
 import { useState, useEffect } from 'react';
-
-
-import header from './components/header.jsx';
-import footer from './components/footer.jsx';
-import userListComponent from './components/userListComponent.jsx';
-import userSearch from './components/userSearch.jsx';
-import pagination from './components/pagination.jsx';
+import Header from './components/Header.jsx';
+import Footer from './components/Footer.jsx';
+import UserList from './components/UserList.jsx';
+import UserSearch from './components/UserSearch.jsx';
+import Pagination from './components/Pagination.jsx';
 import './styles.css';
-import createEditUserModal from './components/createEditUserModal.jsx';
+import SaveUserModal from './components/SaveUserModal.jsx';
 
 const baseUrl = 'https://ivsblhkvjbfyakdaafrm.supabase.co/rest/v1/users';
 const apiKey = 'sb_publishable_MLCyG6Hxn9Uvhe7DgQFe2A_4AToPvjG';
 
+async function fetchUsers() {
+    const response = await fetch(baseUrl, {
+        headers: { apikey: apiKey },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch users: ${response.status}`);
+    }
+
+    return response.json();
+}
+
 function App() {
     const [users, setUsers] = useState([]);
-    const [showcreateEditUserModal, setshowcreateEditUserModal] = useState(false);
+    const [showSaveUserModal, setShowSaveUserModal] = useState(false);
+    const [editingUserId, setEditingUserId] = useState(null);
 
     useEffect(() => {
         // Fetch users from an API or other source
@@ -25,34 +36,40 @@ function App() {
 
 
     const addUserClickHandler = () => {
-        setshowcreateEditUserModal(true);
+        setEditingUserId(null);
+        setShowSaveUserModal(true);
     };
 
     const addUserCloseHandler = () => {
-        setshowcreateEditUserModal(false);
+        setShowSaveUserModal(false);
+        setEditingUserId(null);
     };
 
-    const submitUserHandler = async (user) => {
+    const editUserClickHandler = (userId) => {
+        setEditingUserId(userId);
+        setShowSaveUserModal(true);
+    };
+
+    const submitUserHandler = async (user, userId) => {
         try {
-            // Send user to Rest API
-            await fetch(baseUrl, {
-                method: 'POST',
+            const response = await fetch(userId ? `${baseUrl}?id=eq.${userId}` : baseUrl, {
+                method: userId ? 'PATCH' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'apikey': apiKey
+                    apikey: apiKey,
                 },
                 body: JSON.stringify(user)
             });
 
-            // Fetch all users after adding a new one
-            const updatedUsers = await fetchUsers();
+            if (!response.ok) {
+                throw new Error(`Failed to ${userId ? 'update' : 'add'} user: ${response.status}`);
+            }
 
-            // Update the state with the latest users
+            const updatedUsers = await fetchUsers();
             setUsers(updatedUsers);
+            addUserCloseHandler();
         } catch (error) {
-            alert('Error adding user: ' + error);
-        } finally {
-            setShowSaveUserModal(false);
+            alert(`Error ${userId ? 'updating' : 'adding'} user: ${error.message}`);
         }
     };
 
@@ -73,11 +90,22 @@ function App() {
                 <section className="card users-container">
                     <UserSearch />
 
-                    <UserList users={users} onUserUpdate={userUpdateHandler} />
+                    <UserList
+                        users={users}
+                        onUserUpdate={userUpdateHandler}
+                        onEditUser={editUserClickHandler}
+                    />
 
                     <button className="btn-add btn" onClick={addUserClickHandler}>Add new user</button >
 
-                    {showcreateEditUserModal && <SaveUserModal onClose={addUserCloseHandler} onSubmit={submitUserHandler} />}
+                    {showSaveUserModal && (
+                        <SaveUserModal
+                            userId={editingUserId}
+                            edit={Boolean(editingUserId)}
+                            onClose={addUserCloseHandler}
+                            onSubmit={submitUserHandler}
+                        />
+                    )}
 
                     <Pagination />
                 </section >

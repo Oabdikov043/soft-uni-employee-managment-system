@@ -1,9 +1,8 @@
 import { useState } from "react";
-import UserDetails from "./UserDetails.jsx";
+import UserDetails from "./userDetails.jsx";
 import UserListItem from "./UserListItem.jsx";
 import UserDeleteModal from "./UserDeleteModal.jsx";
 import Spinner from "./Spinner.jsx";
-import SaveUserModal from "./SaveUserModal.jsx";
 
 const baseUrl = 'https://ivsblhkvjbfyakdaafrm.supabase.co/rest/v1/users';
 const apiKey = 'sb_publishable_MLCyG6Hxn9Uvhe7DgQFe2A_4AToPvjG';
@@ -12,11 +11,11 @@ const apiKey = 'sb_publishable_MLCyG6Hxn9Uvhe7DgQFe2A_4AToPvjG';
 export default function UserList({
     users,
     onUserUpdate,
+    onEditUser,
 }) {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showUserDetails, setShowUserDetails] = useState(false);
     const [showUserDelete, setShowUserDelete] = useState(false);
-    const [showUserEdit, setShowUserEdit] = useState(false);
 
     const showUserDetailsHandler = (userId) => {
         setSelectedUserId(userId);
@@ -31,7 +30,6 @@ export default function UserList({
     const hideModalHandler = () => {
         setShowUserDetails(false);
         setShowUserDelete(false);
-        setShowUserEdit(false);
         setSelectedUserId(null);
     };
 
@@ -53,8 +51,7 @@ export default function UserList({
     }
 
     const editUserHandler = (userId) => {
-        setSelectedUserId(userId);
-        setShowUserEdit(true);
+        onEditUser(userId);
     };
 
     return (
@@ -130,13 +127,6 @@ export default function UserList({
 
             {showUserDetails && <UserDetails userId={selectedUserId} onClose={hideModalHandler} />}
             {showUserDelete && <UserDeleteModal onClose={hideModalHandler} onDelete={deleteUserHandler} />}
-            {showUserEdit && (
-                <SaveUserModal
-                    userId={selectedUserId}
-                    onClose={hideModalHandler}
-                    edit
-                />
-            )}
         </div>
     );
 }

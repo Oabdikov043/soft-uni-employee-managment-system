@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fromIsoDate } from "../utils/dateTimeUtils.js";
+import { fromIsoDate } from "../utils/dateTimeutils.js";
 
 const baseUrl = 'https://ivsblhkvjbfyakdaafrm.supabase.co/rest/v1/users';
 const apiKey = 'sb_publishable_MLCyG6Hxn9Uvhe7DgQFe2A_4AToPvjG';
